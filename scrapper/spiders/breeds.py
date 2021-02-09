@@ -28,5 +28,5 @@ class QuotesSpider(scrapy.Spider):
             # add breed to breeds
             breeds.append(names)
         
-        with open(self.output, 'w') as fl:
+        with open("./data/breeds.csv", 'w') as fl:
             fl.write("\n".join(sorted(chain(*breeds))))
