@@ -5,7 +5,7 @@ import csv
 class QuotesSpider(scrapy.Spider):
     name = "breed_details"
 
-    def __init__(self, url='', breeds='', **kwargs):
+    def __init__(self, url='', breeds='./data/breeds.csv', **kwargs):
         with open(breeds, 'r') as fl:
             breeds = fl.readlines()
 
