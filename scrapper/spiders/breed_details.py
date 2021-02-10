@@ -29,22 +29,45 @@ class QuotesSpider(scrapy.Spider):
         SHORT_DESCRIPTION = '//div[@class="rc-column"]/div/p/text()'
         DESCRIPTION = '//div[@class="rc-column"]/p/text()'
         CHARACTERISTICS = '//div[@class="rc-column"]/dl[@class="definition-list"]/dd/text()'
+        KEYS_CHARACTERISTICS = '//div[@class="rc-column"]/dl[@class="definition-list"]/dt/text()'
         TAGS = '//div[@class="rc-column"]/ul[@class="rc-list rc-list--blank rc-list--large-icon"]/li/text()'
+
+        # pre-value
+        country = None
+        size = None
+        lifetime = None
+
+        # descripotions
+        description_all = response.xpath(DESCRIPTION).getall()
+        description = description_all[0:-1]
+        virtues = description_all[-1]
+
         
         # details
         name = response.xpath(NAME).get().strip()
-        short_description = response.xpath(SHORT_DESCRIPTION).get()
-        description = "".join(response.xpath(DESCRIPTION).getall())
+        short_description = response.xpath(SHORT_DESCRIPTION).get().replace('"', "'").replace("\n", "")
+        description = " ".join(map(lambda p: p.replace('"', "'").replace("\n", ""), description))
         characteristics = response.xpath(CHARACTERISTICS).getall()
-        tags = map(lambda x: x.strip(), response.xpath(TAGS).getall())
+        keys_characteristics = list(map(lambda x: x.lower(), response.xpath(KEYS_CHARACTERISTICS).getall()))
+        tags = "=".join(map(lambda x: x.strip(), response.xpath(TAGS).getall()))
+
+        if ("país" in keys_characteristics):
+            country = characteristics[keys_characteristics.index("país")]
+        if ("categoría de tamaño" in keys_characteristics):
+            size = characteristics[keys_characteristics.index("categoría de tamaño")]
+        if ("esperanza de vida promedio" in keys_characteristics):
+            lifetime = characteristics[keys_characteristics.index("esperanza de vida promedio")]
 
         # save data
-        with open("./data/breeds_details.csv", 'a', newline='') as fl:
-            fl_breeds_details = csv.writer(fl, quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        with open("./data/breeds_details.csv", 'a', newline='\n') as fl:
+            fl_breeds_details = csv.writer(fl, delimiter="|", quotechar='\\', quoting=csv.QUOTE_MINIMAL)
             fl_breeds_details.writerow([
                 name,
                 short_description,
                 description,
-                characteristics,
-                list(tags)
+                country,
+                size,
+                lifetime,
+                tags,
+                virtues
             ])
