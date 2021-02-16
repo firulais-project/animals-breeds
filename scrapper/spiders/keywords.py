@@ -28,7 +28,10 @@ class QuotesSpider(scrapy.Spider):
         TAGS = '//div[@class="rc-column"]/ul[@class="rc-list rc-list--blank rc-list--large-icon"]/li/text()'
 
         # descripotions
-        tags = list(map(lambda x: x.strip().lower(), response.xpath(TAGS).getall()))
+        tags = response.xpath(TAGS).getall()
+        tags = map(lambda x: x.strip().lower(), tags)
+        tags = map(lambda x: x.replace('.', ''), tags)
+        tags = list(tags)
 
         # save data
         with open("./data/keywords.csv", 'a', newline='\n') as fl:

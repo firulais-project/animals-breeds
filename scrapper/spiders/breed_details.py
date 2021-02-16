@@ -46,10 +46,24 @@ class QuotesSpider(scrapy.Spider):
         # details
         name = response.xpath(NAME).get().strip()
         short_description = response.xpath(SHORT_DESCRIPTION).get().replace('"', "'").replace("\n", "")
-        description = " ".join(map(lambda p: p.replace('"', "'").replace("\n", ""), description))
+        
+        # parser description
+        description = map(lambda p: p.replace('"', "'").replace("\n", ""), description)
+        description = " ".join(description)
+        
+        # characteristics
         characteristics = response.xpath(CHARACTERISTICS).getall()
-        keys_characteristics = list(map(lambda x: x.lower(), response.xpath(KEYS_CHARACTERISTICS).getall()))
-        tags = "=".join(map(lambda x: x.strip(), response.xpath(TAGS).getall()))
+
+        # parser keys
+        keys_characteristics = response.xpath(KEYS_CHARACTERISTICS).getall()
+        keys_characteristics = map(lambda x: x.lower(), keys_characteristics)
+        keys_characteristics = list(keys_characteristics)
+        
+        # parser tags
+        tags = response.xpath(TAGS).getall()
+        tags = map(lambda x: x.strip(), tags)
+        tags = map(lambda x: x.replace('.', '', tags))
+        tags = "=".join(tags)
 
         if ("país" in keys_characteristics):
             country = characteristics[keys_characteristics.index("país")]
